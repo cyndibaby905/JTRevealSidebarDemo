@@ -7,6 +7,8 @@
  */
 
 #import <UIKit/UIKit.h>
+#define LEFT_SIDEBAR_VIEW_TAG 10000
+#define RIGHT_SIDEBAR_VIEW_TAG 10001
 
 typedef enum {
     JTRevealedStateNo,

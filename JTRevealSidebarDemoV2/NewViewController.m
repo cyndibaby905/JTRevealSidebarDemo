@@ -29,6 +29,10 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(revealRightSidebar:)];
     
     self.navigationItem.revealSidebarDelegate = self;
+    
+    UIPanGestureRecognizer *panRightSideBar = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panRightSideBar:)];
+    [self.view addGestureRecognizer:panRightSideBar];
+    
 }
 
 - (void)viewDidUnload
@@ -46,6 +50,50 @@
         state = JTRevealedStateNo;
     }
     [self.navigationController setRevealedState:state];
+}
+
+- (void)panRightSideBar:(UIPanGestureRecognizer*)panGes {
+    UIView *revealedView = [self viewForRightSidebar];
+    
+    revealedView.tag = RIGHT_SIDEBAR_VIEW_TAG;
+    if (![self.navigationController.view.superview viewWithTag:RIGHT_SIDEBAR_VIEW_TAG]) {
+        [self.navigationController.view.superview insertSubview:revealedView belowSubview:self.navigationController.view];
+        
+    }
+    CGFloat width = CGRectGetWidth(revealedView.frame);
+    CGPoint translate = [panGes translationInView:self.navigationController.view];
+    CGRect frame = self.navigationController.view.frame;
+    
+    
+    CGFloat offsetX = translate.x;
+    if (self.navigationController.revealedState == JTRevealedStateRight) {
+        offsetX = -width + translate.x;
+
+    }
+    
+    
+    
+    if (offsetX <= -width) {
+        offsetX = -width;
+    }
+    else if(offsetX >= 0) {
+        offsetX = 0;
+    }
+    
+    
+    
+    
+    
+    frame.origin.x = offsetX;
+    self.navigationController.view.frame = frame;
+    
+    if (panGes.state == UIGestureRecognizerStateEnded) {
+        [self revealRightSidebar:nil];
+    }
+    else if (panGes.state == UIGestureRecognizerStateCancelled) {
+        [self revealRightSidebar:nil];
+    }
+
 }
 
 

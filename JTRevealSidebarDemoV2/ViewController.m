@@ -58,6 +58,10 @@
     [self.view addSubview:pushButton];
 
     self.navigationItem.revealSidebarDelegate = self;
+   
+    
+    UIPanGestureRecognizer *panSideBar = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panSideBar:)];
+    [self.view addGestureRecognizer:panSideBar];
 }
 
 - (void)viewDidUnload
@@ -116,6 +120,81 @@
 
 - (void)revealRightSidebar:(id)sender {
     [self.navigationController toggleRevealState:JTRevealedStateRight];
+}
+
+
+
+- (void)panSideBar:(UIPanGestureRecognizer*)panGes {
+    
+    UIView *revealedView = [self viewForLeftSidebar];
+    
+    CGFloat width = CGRectGetWidth(revealedView.frame);
+    CGPoint translate = [panGes translationInView:self.navigationController.view];
+    CGRect frame = self.navigationController.view.frame;
+    NSLog(@"%f,%f",translate.x,translate.y);
+    
+    
+    
+    CGFloat offsetX = translate.x;
+    if (self.navigationController.revealedState == JTRevealedStateLeft) {
+        offsetX = frame.size.width + translate.x - (frame.size.width - width);
+
+    }
+    
+    
+    if (offsetX <= -width) {
+        offsetX = -width;
+    }
+    else if(offsetX >= width) {
+        offsetX = width;
+    }
+    
+    
+    
+    if (offsetX >= 0) {
+        revealedView.tag = LEFT_SIDEBAR_VIEW_TAG;
+        if (![self.navigationController.view.superview viewWithTag:LEFT_SIDEBAR_VIEW_TAG]) {
+            [self.navigationController.view.superview insertSubview:revealedView belowSubview:self.navigationController.view];
+        }
+        [[self.navigationController.view.superview viewWithTag:RIGHT_SIDEBAR_VIEW_TAG] removeFromSuperview];
+        
+        
+    }
+    else {
+        UIView *revealedRightView = [self viewForRightSidebar];
+        
+        revealedRightView.tag = RIGHT_SIDEBAR_VIEW_TAG;
+        if (![self.navigationController.view.superview viewWithTag:RIGHT_SIDEBAR_VIEW_TAG]) {
+            [self.navigationController.view.superview insertSubview:revealedRightView belowSubview:self.navigationController.view];
+        }
+        [[self.navigationController.view.superview viewWithTag:LEFT_SIDEBAR_VIEW_TAG] removeFromSuperview];
+        
+    }
+    
+    
+    
+    
+    frame.origin.x = offsetX;
+    self.navigationController.view.frame = frame;
+    
+    if (panGes.state == UIGestureRecognizerStateEnded) {
+        
+        if (offsetX >= 0) {
+            [self revealLeftSidebar:nil];
+        }
+        else {
+            [self revealRightSidebar:nil];
+        }
+    }
+    else if (panGes.state == UIGestureRecognizerStateCancelled) {
+        
+        if (offsetX >= 0) {
+            [self revealLeftSidebar:nil];
+        }
+        else {
+            [self revealRightSidebar:nil];
+        }
+    }
 }
 
 - (void)pushNewViewController:(id)sender {

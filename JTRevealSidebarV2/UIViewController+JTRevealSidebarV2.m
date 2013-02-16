@@ -192,7 +192,6 @@ static char *revealedStateKey;
 
 @end
 
-#define SIDEBAR_VIEW_TAG 10000
 
 @implementation UIViewController (JTRevealSidebarV2Private)
 
@@ -241,11 +240,13 @@ static char *revealedStateKey;
     }
 
     UIView *revealedView = [delegate viewForLeftSidebar];
-    revealedView.tag = SIDEBAR_VIEW_TAG;
+    revealedView.tag = LEFT_SIDEBAR_VIEW_TAG;
     CGFloat width = CGRectGetWidth(revealedView.frame);
 
     if (showLeftSidebar) {
-        [self.view.superview insertSubview:revealedView belowSubview:self.view];
+        if (![self.view.superview viewWithTag:LEFT_SIDEBAR_VIEW_TAG]) {
+            [self.view.superview insertSubview:revealedView belowSubview:self.view];
+        }
         tapGesForLeftSidebar = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeLeftSideBar:)];
         tapGesForLeftSidebar.numberOfTapsRequired = 1;
         tapGesForLeftSidebar.numberOfTouchesRequired = 1;
@@ -264,7 +265,7 @@ static char *revealedStateKey;
         self.view.frame = CGRectOffset(self.view.bounds, width, 0);
         
     } else {
-        [UIView beginAnimations:@"hideSidebarView" context:(void *)SIDEBAR_VIEW_TAG];
+        [UIView beginAnimations:@"hideSidebarView" context:(void *)LEFT_SIDEBAR_VIEW_TAG];
         //        self.view.transform = CGAffineTransformTranslate([self baseTransform], -width, 0);
         
         self.view.frame = CGRectOffset(self.view.bounds, 0, 0);
@@ -289,12 +290,14 @@ static char *revealedStateKey;
     }
 
     UIView *revealedView = [delegate viewForRightSidebar];
-    revealedView.tag = SIDEBAR_VIEW_TAG;
+    revealedView.tag = RIGHT_SIDEBAR_VIEW_TAG;
     CGFloat width = CGRectGetWidth(revealedView.frame);
     revealedView.frame = (CGRect){self.view.frame.size.width - width, revealedView.frame.origin.y, revealedView.frame.size};
 
     if (showRightSidebar) {
-        [self.view.superview insertSubview:revealedView belowSubview:self.view];
+        if (![self.view.superview viewWithTag:RIGHT_SIDEBAR_VIEW_TAG]) {
+            [self.view.superview insertSubview:revealedView belowSubview:self.view];
+        }
 
         tapGesForRightSidebar = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeRightSideBar:)];
         tapGesForRightSidebar.numberOfTapsRequired = 1;
@@ -314,7 +317,7 @@ static char *revealedStateKey;
         
         self.view.frame = CGRectOffset(self.view.bounds, -width, 0);
     } else {
-        [UIView beginAnimations:@"hideSidebarView" context:(void *)SIDEBAR_VIEW_TAG];
+        [UIView beginAnimations:@"hideSidebarView" context:(void *)RIGHT_SIDEBAR_VIEW_TAG];
 //        self.view.transform = CGAffineTransformTranslate([self baseTransform], width, 0);
         self.view.frame = CGRectOffset(self.view.bounds, 0, 0);
     }
